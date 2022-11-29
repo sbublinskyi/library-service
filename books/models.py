@@ -17,9 +17,9 @@ class Book(models.Model):
         SOFT = "S", _("Soft")
     title = models.CharField(max_length=63, unique=True)
     author = models.CharField(max_length=63)
-    cover = models.CharField(choices=Cover.choices)
+    cover = models.CharField(choices=Cover.choices, max_length=4)
     inventory = models.IntegerField(validators=[validate_positive])
-    daily_fee = models.DecimalField(validators=[validate_positive])
+    daily_fee = models.DecimalField(max_digits=5, decimal_places=2, validators=[validate_positive])
 
     def __str__(self):
         return self.title
