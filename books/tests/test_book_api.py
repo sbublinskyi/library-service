@@ -63,7 +63,7 @@ class UnauthenticatedBookApiTests(TestCase):
     def test_create_book_forbidden(self):
 
         res = self.client.post(BOOK_URL, PAYLOAD)
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_book_forbidden(self):
 
@@ -71,14 +71,14 @@ class UnauthenticatedBookApiTests(TestCase):
 
         url = detail_url(book.id)
         res = self.client.put(url, PAYLOAD)
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_book_forbidden(self):
         book = sample_book()
 
         url = detail_url(book.id)
         res = self.client.delete(url)
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class AuthenticatedBookApiTests(TestCase):
@@ -99,6 +99,16 @@ class AuthenticatedBookApiTests(TestCase):
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
 
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_retrieve_movie_detail(self):
+        book = sample_book()
+
+        url = detail_url(book.id)
+        res = self.client.get(url)
+
+        serializer = BookSerializer(book)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
