@@ -1,11 +1,10 @@
-from django.shortcuts import render
 from rest_framework import mixins, viewsets
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
-    BorrowingDetailSerializer
+    BorrowingDetailSerializer, BorrowingCreateSerializer
 )
 
 
@@ -25,4 +24,10 @@ class BorrowingViewSet(
         if self.action == "retrieve":
             return BorrowingDetailSerializer
 
+        if self.action == "create":
+            return BorrowingCreateSerializer
+
         return BorrowingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
