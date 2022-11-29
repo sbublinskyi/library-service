@@ -32,8 +32,8 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
         book = data["book"]
 
-        if book.inventory <= 0:
-            raise ValidationError("We don`t have this book")
+        if book.inventory < 1:
+            raise ValidationError("We don`t have this book now")
 
         return data
 
