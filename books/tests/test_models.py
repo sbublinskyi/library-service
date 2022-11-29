@@ -10,6 +10,6 @@ class ModelsTests(TestCase):
             author="test_author",
             cover="Soft",
             inventory=50,
-            daily_fee=13.44
+            daily_fee=13.44,
         )
         self.assertEqual(str(book), book.title)

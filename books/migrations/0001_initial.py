@@ -33,7 +33,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "inventory",
-                    models.IntegerField(validators=[books.models.validate_positive]),
+                    models.IntegerField(
+                        validators=[books.models.validate_positive]
+                    ),
                 ),
                 (
                     "daily_fee",
