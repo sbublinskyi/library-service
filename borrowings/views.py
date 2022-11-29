@@ -1,11 +1,19 @@
-from rest_framework import mixins, viewsets
+import datetime
+
+from django.http import HttpResponseRedirect
+from rest_framework import mixins, viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
-    BorrowingDetailSerializer, BorrowingCreateSerializer
+    BorrowingDetailSerializer, BorrowingCreateSerializer,
+    BorrowingReturnSerializer
 )
+
+
 
 
 class BorrowingViewSet(
@@ -26,8 +34,23 @@ class BorrowingViewSet(
 
         if self.action == "create":
             return BorrowingCreateSerializer
+        if self.action == "return_book":
+            return BorrowingReturnSerializer
 
         return BorrowingSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(methods=["PUT"], url_path="return_book", detail=True)
+    def return_book(self, request, pk=None):
+        borrowing = self.get_object()
+        serializer = self.get_serializer(borrowing, data=self.request.data)
+        book = borrowing.book
+        if serializer.is_valid():
+            if borrowing.actual_return_date is None:
+                book.inventory += 1
+                book.save()
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
