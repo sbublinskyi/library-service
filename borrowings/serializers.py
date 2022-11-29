@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -21,12 +23,9 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Borrowing
-        fields = (
-            "book",
-        )
+        fields = ("book",)
 
     def validate(self, attrs):
         data = super(BorrowingCreateSerializer, self).validate(attrs=attrs)
@@ -58,10 +57,23 @@ class BorrowingListSerializer(BorrowingSerializer):
 
     class Meta:
         model = Borrowing
-        fields = ("id", "borrow_date", "expected_return_date", "actual_return_date", "book_title", "user_email", )
+        fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book_title",
+            "user_email",
+        )
 
 
 class BorrowingDetailSerializer(BorrowingSerializer):
 
     user = UserSerializer(many=False)
     book = BookSerializer(many=False)
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = ("actual_return_date",)
