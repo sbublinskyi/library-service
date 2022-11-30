@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -5,19 +7,6 @@ from rest_framework.exceptions import ValidationError
 from books.serializers import BookSerializer
 from borrowings.models import Borrowing
 from user.serializers import UserSerializer
-
-
-class BorrowingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Borrowing
-        fields = (
-            "id",
-            "borrow_date",
-            "expected_return_date",
-            "actual_return_date",
-            "user",
-            "book",
-        )
 
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
@@ -65,10 +54,21 @@ class BorrowingListSerializer(serializers.ModelSerializer):
         )
 
 
-class BorrowingDetailSerializer(BorrowingSerializer):
+class BorrowingDetailSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(many=False)
     book = BookSerializer(many=False)
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "user",
+            "book",
+        )
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
