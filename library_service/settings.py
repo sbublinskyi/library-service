@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_spectacular",
+    "django_celery_results",
+    "django_celery_beat",
     "books",
     "user",
-    "borrowings"
+    "borrowings",
 ]
 
 MIDDLEWARE = [
@@ -127,7 +129,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -136,3 +138,18 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6380/0"
+
+CELERY_RESULT_BACKEND = "django-db"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6380/1",
+    }
+}
+
+CELERY_CACHE_BACKEND = "default"
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
