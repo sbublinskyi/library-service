@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -72,6 +74,14 @@ class BorrowingDetailSerializer(BorrowingSerializer):
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
+    actual_return_date = serializers.DateField()
+
     class Meta:
         model = Borrowing
-        fields = ("actual_return_date",)
+        fields = ("actual_return_date", )
+    
+    def validate(self, attrs):
+        if attrs["actual_return_date"] < datetime.date.today():
+            raise ValidationError("Wrong date!")
+
+        return super(BorrowingReturnSerializer, self).validate(attrs)
