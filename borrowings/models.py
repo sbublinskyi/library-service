@@ -24,9 +24,7 @@ class Borrowing(models.Model):
         on_delete=models.CASCADE,
         related_name="borrowings",
     )
-    book = models.ForeignKey(
-        Book, on_delete=models.CASCADE, related_name="borrowings"
-    )
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="borrowings")
 
     def __str__(self) -> str:
         return (

@@ -7,7 +7,7 @@ from borrowings.serializers import (
     BorrowingListSerializer,
     BorrowingDetailSerializer,
     BorrowingCreateSerializer,
-    BorrowingReturnSerializer
+    BorrowingReturnSerializer,
 )
 
 
