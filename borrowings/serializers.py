@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import datetime
-
-=======
->>>>>>> 5ff73218648dc642a2f1935b73e148612fe647e7
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
