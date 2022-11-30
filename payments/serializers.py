@@ -6,21 +6,8 @@ from borrowings.serializers import BorrowingDetailSerializer
 from payments.models import Payment
 
 
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        fields = (
-            "id",
-            "status",
-            "type",
-            "borrowing",
-            "session_url",
-            "session_id",
-            "money_to_pay",
-        )
-
-
 class PaymentListSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Payment
         fields = (
@@ -49,6 +36,18 @@ class PaymentListSerializer(serializers.ModelSerializer):
             )
 
 
-class PaymentDetailSerializer(PaymentSerializer):
+class PaymentDetailSerializer(serializers.ModelSerializer):
 
     borrowing = BorrowingDetailSerializer()
+
+    class Meta:
+        model = Payment
+        fields = (
+            "id",
+            "status",
+            "type",
+            "borrowing",
+            "session_url",
+            "session_id",
+            "money_to_pay",
+        )
