@@ -2,8 +2,8 @@ import os
 
 import requests
 
-BOT_TOKEN = os.environ["TELEGRAM_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]
+BOT_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+CHAT_ID = os.environ.get("CHAT_ID")
 API_URL = "https://api.telegram.org/"
 
 
