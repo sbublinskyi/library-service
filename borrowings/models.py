@@ -21,7 +21,7 @@ class Borrowing(models.Model):
     actual_return_date = models.DateField(blank=True, null=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="borrowings",
     )
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="borrowings")
