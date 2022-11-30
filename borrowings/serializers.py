@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -50,7 +48,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             return Borrowing.objects.create(**validated_data)
 
 
-class BorrowingListSerializer(BorrowingSerializer):
+class BorrowingListSerializer(serializers.ModelSerializer):
 
     book_title = serializers.CharField(source="book.title", read_only=True)
     user_email = serializers.CharField(source="user.email", read_only=True)
