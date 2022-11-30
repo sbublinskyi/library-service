@@ -1,19 +1,14 @@
-import datetime
-
-from django.http import HttpResponseRedirect
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
-    BorrowingSerializer,
     BorrowingListSerializer,
-    BorrowingDetailSerializer, BorrowingCreateSerializer,
+    BorrowingDetailSerializer,
+    BorrowingCreateSerializer,
     BorrowingReturnSerializer
 )
-
-
 
 
 class BorrowingViewSet(
@@ -23,7 +18,6 @@ class BorrowingViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Borrowing.objects.select_related("book", "user")
-    serializer_class = BorrowingSerializer
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -34,10 +28,9 @@ class BorrowingViewSet(
 
         if self.action == "create":
             return BorrowingCreateSerializer
+
         if self.action == "return_book":
             return BorrowingReturnSerializer
-
-        return BorrowingSerializer
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -53,4 +46,4 @@ class BorrowingViewSet(
                 book.save()
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
