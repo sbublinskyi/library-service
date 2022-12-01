@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -16,6 +17,7 @@ from borrowings.serializers import (
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
 )
+from payments.models import Payment
 
 
 class BorrowingViewSet(
@@ -57,6 +59,10 @@ class BorrowingViewSet(
             return BorrowingReturnSerializer
 
     def perform_create(self, serializer):
+        payments = Payment.objects.filter(borrowing__user_id=self.request.user)
+        for payment in payments:
+            if payment.status == "PENDING":
+                raise ValidationError("Please at first paid your previous borrowings")
         serializer.save(user=self.request.user)
 
     @action(methods=["PUT"], url_path="return_book", detail=True)
