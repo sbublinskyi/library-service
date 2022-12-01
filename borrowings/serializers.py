@@ -32,7 +32,7 @@ def create_stripe_session(book: Book, price: float) -> tuple:
             }
         ],
         mode="payment",
-        success_url="http://localhost:8000/success",
+        success_url="http://localhost:8000/api/payments/success?session_id={CHECKOUT_SESSION_ID}",
         cancel_url="http://localhost:8000/cancel",
     )
     return session.url, session.id
