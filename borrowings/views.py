@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from borrowings.models import Borrowing
@@ -23,6 +24,7 @@ class BorrowingViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = Borrowing.objects.select_related("book", "user")
