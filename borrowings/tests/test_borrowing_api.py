@@ -21,6 +21,20 @@ def sample_borrowing(**params):
     return Borrowing.objects.create(**defaults)
 
 
+def book_return_url(borrowing_id):
+    """Return URL for book return"""
+    return reverse("borrowings:return_book", args=[borrowing_id])
+
+
+class UnauthenticatedBorrowingApiTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_auth_required(self):
+        res = self.client.get(BORROWING_URL)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class AuthenticatedBorrowingApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
@@ -62,6 +76,18 @@ class AuthenticatedBorrowingApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn(serializer1.data, res.data)
         self.assertNotIn(serializer2.data, res.data)
+
+    def test_borrowing_str(self):
+        book = sample_book()
+        borrowing = sample_borrowing(
+            user=self.user,
+            book=book,
+        )
+        self.assertEqual(
+            str(borrowing),
+            "Book Test book, Borrow date: 2022-12-01."
+            "Please, return until: 2022-12-15"
+        )
 
 
 class AdminBorrowingApiTests(TestCase):
