@@ -16,5 +16,5 @@ class Payment(models.Model):
     type = models.CharField(max_length=7, choices=TYPE_CHOICES)
     borrowing = models.OneToOneField(Borrowing, on_delete=models.CASCADE)
     session_url = models.URLField()
-    session_id = models.IntegerField()  # TODO: can be changed
+    session_id = models.CharField(max_length=255)
     money_to_pay = models.DecimalField(max_digits=5, decimal_places=2)
