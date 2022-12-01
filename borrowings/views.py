@@ -1,3 +1,4 @@
+from django.db import transaction
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     extend_schema,
@@ -16,6 +17,7 @@ from borrowings.serializers import (
     BorrowingDetailSerializer,
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
+    create_stripe_session,
 )
 from payments.models import Payment
 
@@ -65,6 +67,7 @@ class BorrowingViewSet(
                 raise ValidationError("Please at first paid your previous borrowings")
         serializer.save(user=self.request.user)
 
+    @transaction.atomic
     @action(methods=["PUT"], url_path="return_book", detail=True)
     def return_book(self, request, pk=None):
         borrowing = self.get_object()
@@ -75,7 +78,34 @@ class BorrowingViewSet(
                 book.inventory += 1
                 book.save()
                 serializer.save()
+                if (
+                        borrowing.actual_return_date
+                        > borrowing.expected_return_date
+                ):
+                    Payment.objects.get(borrowing=borrowing).delete()
+                    fine_multiplier = 2
+                    days_of_overdue = (
+                            borrowing.actual_return_date
+                            - borrowing.expected_return_date
+                    ).days
+                    money_to_pay = (
+                            book.daily_fee * days_of_overdue * fine_multiplier
+                    )
+                    session_url, session_id = create_stripe_session(
+                        book, money_to_pay
+                    )
+                    Payment.objects.create(
+                        status="PENDING",
+                        borrowing=borrowing,
+                        type="FINE",
+                        session_url=session_url,
+                        session_id=session_id,
+                        money_to_pay=money_to_pay,
+                    )
+                    serializer.save()
+
                 return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Only for documentation purposes
