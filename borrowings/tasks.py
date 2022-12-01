@@ -2,7 +2,7 @@ import datetime
 
 from celery import shared_task
 
-from borrowings import telegram_bot
+from library_service import telegram_bot
 from borrowings.models import Borrowing
 
 
