@@ -7,7 +7,6 @@ from payments.serializers import PaymentListSerializer, PaymentDetailSerializer
 
 class PaymentViewSet(
     mixins.ListModelMixin,
-    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
@@ -22,10 +21,7 @@ class PaymentViewSet(
         return self.queryset
 
     def get_serializer_class(self):
-        if self.action in (
-            "list",
-            "create",
-        ):
+        if self.action == "list":
             return PaymentListSerializer
         if self.action == "retrieve":
             return PaymentDetailSerializer
