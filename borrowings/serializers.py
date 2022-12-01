@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 
 from books.models import Book
 from books.serializers import BookSerializer
-from borrowings import telegram_bot
+from library_service import telegram_bot
 from borrowings.models import Borrowing
 from payments.models import Payment
 from user.serializers import UserSerializer
