@@ -46,7 +46,6 @@ class PaymentViewSet(
                 "status": "PAID",
                 "type": "FINE"
             }
-            print(self.action)
             serializer = self.get_serializer(payment, data=data)
             if serializer.is_valid():
                 serializer.save()
