@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     extend_schema,
@@ -16,6 +18,7 @@ from borrowings.serializers import (
     BorrowingDetailSerializer,
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
+    create_stripe_session,
 )
 from payments.models import Payment
 
@@ -62,7 +65,9 @@ class BorrowingViewSet(
         payments = Payment.objects.filter(borrowing__user_id=self.request.user)
         for payment in payments:
             if payment.status == "PENDING":
-                raise ValidationError("Please at first paid your previous borrowings")
+                raise ValidationError(
+                    "Please at first paid your previous borrowings"
+                )
         serializer.save(user=self.request.user)
 
     @action(methods=["PUT"], url_path="return_book", detail=True)
@@ -75,7 +80,33 @@ class BorrowingViewSet(
                 book.inventory += 1
                 book.save()
                 serializer.save()
+                if (
+                    borrowing.actual_return_date
+                    > borrowing.expected_return_date
+                ):
+                    Payment.objects.get(borrowing=borrowing).delete()
+                    fine_multiplier = 2
+                    days_of_overdue = (
+                        borrowing.actual_return_date
+                        - borrowing.expected_return_date
+                    ).days
+                    money_to_pay = (
+                        book.daily_fee * days_of_overdue * fine_multiplier
+                    )
+                    session_url, session_id = create_stripe_session(
+                        book, money_to_pay
+                    )
+                    Payment.objects.create(
+                        status="PENDING",
+                        borrowing=borrowing,
+                        type="PAYMENT",
+                        session_url=session_url,
+                        session_id=session_id,
+                        money_to_pay=money_to_pay,
+                    )
+                    serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Only for documentation purposes
@@ -91,7 +122,7 @@ class BorrowingViewSet(
                         summary="?is_active=True",
                         value="True",
                     )
-                ]
+                ],
             ),
             OpenApiParameter(
                 "user_id",
@@ -104,8 +135,8 @@ class BorrowingViewSet(
                         description="Filter only by single id",
                         value=3,
                     )
-                ]
-            )
+                ],
+            ),
         ]
     )
     def list(self, request, *args, **kwargs):
