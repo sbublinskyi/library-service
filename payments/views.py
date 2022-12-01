@@ -1,8 +1,9 @@
 import stripe
 from django.http import HttpResponse
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from payments.models import Payment
 from payments.serializers import (
@@ -36,12 +37,17 @@ class PaymentViewSet(
             return PaymentSuccessSerializer
 
     @action(methods=["GET"], url_path="success", detail=False)
-    def return_book(self, request, session_id=None):
+    def success(self, request, session_id=None):
         session_id = request.query_params.get("session_id")
         payment = Payment.objects.get(session_id=session_id)
-        payment.status = "PAID"
-        payment.type = "FINE"
-        payment.save()
-        session = stripe.checkout.Session.retrieve(session_id)
+        data = {
+            "status": "PAID",
+            "type": "FINE"
+        }
+        print(self.action)
+        serializer = self.get_serializer(payment, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return HttpResponse('<html><body><h1>Thanks for your order, customer.name!</h1></body></html>')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

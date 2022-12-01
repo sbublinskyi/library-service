@@ -36,3 +36,9 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
             "session_id",
             "money_to_pay",
         )
+
+
+class PaymentSuccessSerializer(serializers.Serializer):
+    class Meta:
+        model = Payment
+        fields = ["status", "type"]
