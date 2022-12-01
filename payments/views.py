@@ -44,7 +44,7 @@ class PaymentViewSet(
             payment = Payment.objects.get(session_id=session_id)
             data = {
                 "status": "PAID",
-                "type": "FINE"
+                "type": "PAYMENT"
             }
             serializer = self.get_serializer(payment, data=data)
             if serializer.is_valid():
