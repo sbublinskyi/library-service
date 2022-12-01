@@ -23,6 +23,7 @@ class BorrowingViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+
     def get_queryset(self):
         queryset = Borrowing.objects.select_related("book", "user")
 
