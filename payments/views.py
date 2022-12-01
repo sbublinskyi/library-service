@@ -1,4 +1,5 @@
 from rest_framework import mixins, viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from payments.models import Payment
 from payments.serializers import PaymentListSerializer, PaymentDetailSerializer
@@ -11,6 +12,7 @@ class PaymentViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Payment.objects.select_related("borrowing")
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         if not self.request.user.is_staff:
